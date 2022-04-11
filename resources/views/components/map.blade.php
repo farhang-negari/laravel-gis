@@ -1,5 +1,4 @@
-@props(['monuments'])
-<div x-data="map()" x-init="initComponent({{ json_encode($monuments) }})">
+<div x-data="map()" x-init="initComponent()">
     <div x-ref="map" class="relative h-[600px] overflow-clip rounded-md border border-slate-300 shadow-lg">
         <div class="absolute top-2 right-8 z-10 rounded-md bg-white bg-opacity-75">
             <div class="ol-unselectable ol-control">
@@ -38,14 +37,12 @@
                                 </label>
                                 <template x-if="layer.get('label') === 'Monuments' && layer.getVisible()">
                                     <div class="mt-2 ml-6 text-sm text-slate-600">
-                                    <template x-for="(feature, index) in layer.getSource().getFeatures()" :key="index">
-                                        <a href="#"
-                                            :title="'Go to ' + feature.get('name')"
-                                            x-text="feature.get('name')"
-                                            x-on:click.prevent="gotoFeature(feature)"
-                                            class="block hover:underline hover:text-slate-800 focus:outline-none focus:underline focus:text-slate-800 transition">
-                                        </a>
-                                    </template>
+                                        <template x-for="(feature, index) in monumentsFeatures" :key="index">
+                                            <a href="#" :title="'Go to ' + feature.get('name')"
+                                               x-text="feature.get('name')" x-on:click.prevent="gotoFeature(feature)"
+                                               class="block transition hover:text-slate-800 hover:underline focus:text-slate-800 focus:underline focus:outline-none">
+                                            </a>
+                                        </template>
                                     </div>
                                 </template>
                             </div>

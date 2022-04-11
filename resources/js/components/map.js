@@ -12,9 +12,29 @@ document.addEventListener("alpine:init", () => {
         return {
             legendOpened: false,
             map: {},
-            features: [],
-            initComponent(monuments) {
-                this.features = new GeoJSON().readFeatures(monuments);
+            monumentsLayer: [],
+            initComponent() {
+                const paramsObj = {
+                    servive: 'WFS',
+                    version: '2.0.0',
+                    request: 'GetFeature',
+                    typeName: 'laravelgis:monuments',
+                    outputFormat: 'application/json',
+                    crs: 'EPSG:4326',
+                    srsName: 'EPSG:4326',
+                }
+
+                const urlParams = new URLSearchParams(paramsObj)
+                const monumentsUrl = 'http://localhost:8081/geoserver/wfs?' + urlParams.toString()
+
+                this.monumentsLayer = new VectorLayer({
+                    source: new VectorSource({
+                        format: new GeoJSON(),
+                        url: monumentsUrl,
+                    }),
+                    style: this.styleFunction,
+                    label: "Monuments",
+                })
 
                 this.map = new Map({
                     target: this.$refs.map,
@@ -23,13 +43,7 @@ document.addEventListener("alpine:init", () => {
                             source: new OSM(),
                             label: "OpenStreetMap",
                         }),
-                        new VectorLayer({
-                            source: new VectorSource({
-                                features: this.features,
-                            }),
-                            style: this.styleFunction,
-                            label: "Monuments",
-                        }),
+                        this.monumentsLayer,
                     ],
                     view: new View({
                         projection: "EPSG:4326",
@@ -37,6 +51,10 @@ document.addEventListener("alpine:init", () => {
                         zoom: 2,
                     }),
                 });
+
+            },
+            get monumentsFeatures() {
+                return this.monumentsLayer.getSource().getFeatures()
             },
             styleFunction(feature, resolution) {
                 return new Style({
