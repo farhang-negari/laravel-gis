@@ -13,6 +13,7 @@
                 </button>
             </div>
         </div>
+
         <div x-cloak x-show="legendOpened" x-transition:enter="transition-opacity duration-300"
              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
              x-transition:leave="transition-opacity duration-300" x-transition:leave-start="opacity-100"
@@ -27,28 +28,37 @@
                 <ul class="mt-2 space-y-1 rounded-md border border-slate-300 bg-white p-2">
                     <template x-for="(layer, index) in map.getAllLayers().reverse()" :key="index">
                         <li class="flex items-center px-2 py-1">
-                            <div x-id="['legend-checkbox']">
-                                <label x-bind:for="$id('legend-checkbox')" class="flex items-center">
-                                    <input type="checkbox" x-bind:checked="layer.getVisible()"
-                                           x-bind:id="$id('legend-checkbox')"
-                                           x-on:change="layer.setVisible(!layer.getVisible())"
-                                           class="rounded border-slate-300 text-[#3369A1] shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                    <span class="ml-2 text-sm text-slate-600" x-text="layer.get('label')"></span>
+                            <div x-id="['legend-range']" class="w-full">
+                                <label x-bind:for="$id('legend-range')" class="flex items-center">
+                                    <span class="text-sm text-slate-600" x-text="layer.get('label')"></span>
                                 </label>
-                                <template x-if="layer.get('label') === 'Monuments' && layer.getVisible()">
-                                    <div class="mt-2 ml-6 text-sm text-slate-600">
-                                        <template x-for="(feature, index) in monumentsFeatures" :key="index">
-                                            <a href="#" :title="'Go to ' + feature.get('name')"
-                                               x-text="feature.get('name')" x-on:click.prevent="gotoFeature(feature)"
-                                               class="block transition hover:text-slate-800 hover:underline focus:text-slate-800 focus:underline focus:outline-none">
-                                            </a>
-                                        </template>
-                                    </div>
-                                </template>
+                                <div class="mt-1 text-sm text-slate-600">
+                                    <input class="w-full accent-[#3369A1]"
+                                            type="range"
+                                            min="0"
+                                            max="1"
+                                            step="0.01"
+                                            x-bind:id="$id('legend-range')"
+                                            x-bind:value="layer.getOpacity()"
+                                            x-on:change="layer.setOpacity(Number($event.target.value))">
+                                </div>
                             </div>
                         </li>
                     </template>
                 </ul>
+            </div>
+        </div>
+
+        <div x-cloak x-ref="popup" class="ol-popup ol-control transition">
+            <div class="p-2 m-0.5 bg-white rounded-md">
+                <div class="flex justify-between">
+                    <h3 class="text-xs font-medium text-slate-400">Monument</h3>
+                    <a href="#"
+                        title="Close"
+                        x-on:click.prevent="closePopup"
+                        class="-mt-1 font-black text-slate-400 transition hover:text-slate-600 focus:text-slate-600 focus:outline-none">&times;</a>
+                </div>
+                <div x-ref="popupContent" class="mt-2 overflow-y-auto min-h-[200px]"></div>
             </div>
         </div>
     </div>
